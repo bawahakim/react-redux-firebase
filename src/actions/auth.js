@@ -282,7 +282,7 @@ export const createUserProfile = (dispatch, firebase, userData, profile) => {
   const {
     _: { config }
   } = firebase
-  if (!config.userProfile || (!firebase.database && !firebase.firestore)) {
+  if (!config.userProfile || !firebase.firestore) {
     return Promise.resolve(userData)
   }
   // use profileFactory if it exists in config
@@ -300,7 +300,6 @@ export const createUserProfile = (dispatch, firebase, userData, profile) => {
       return Promise.reject(err)
     }
   }
-
   // Check/Write profile using Firestore
   if (config.useFirestoreForProfile) {
     // Check for user's profile at userProfile path if provided
@@ -707,14 +706,13 @@ export const createUser = (
     dispatchLoginError(dispatch, error)
     return Promise.reject(error)
   }
-
   return firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
-    .then((userData) =>
+    .then((userData) => {
       // Login to newly created account flag is not set to false
       createUserProfile(dispatch, firebase, userData, profile || { email })
-    )
+    })
     .catch((err) => {
       dispatchLoginError(dispatch, err)
       return Promise.reject(err)
